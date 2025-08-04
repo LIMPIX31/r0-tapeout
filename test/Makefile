@@ -2,10 +2,10 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
-TOPLEVEL_LANG ?= verilog
+SIM ?= verilator
+TOPLEVEL_LANG ?= system_verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+PROJECT_SOURCES = project.sv
 
 ifneq ($(GATES),yes)
 

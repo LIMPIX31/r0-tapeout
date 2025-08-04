@@ -1,0 +1,32 @@
+name = "r0-tt-eval"
+version = 5
+
+[device]
+family = "GW5AST-138B"
+part = "GW5AST-LV138FPG676AC1/I0"
+
+[hdl]
+standard = "sysv2017"
+top = "top"
+
+[files]
+verilog = [
+  "**/*.sv",
+  "../src/project.sv",
+  "**/*[!_tmp].v"
+]
+cst = "phy.cst"
+
+[pnr]
+place_option = 3
+route_option = 1
+replicate = true
+
+[bitstream]
+compress = true
+
+[programmer]
+fs = "impl/pnr/project.fs"
+
+preset.sram = { op = "2" }
+preset.spi = { op = "53" }

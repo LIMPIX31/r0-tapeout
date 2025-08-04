@@ -1,0 +1,103 @@
+version = 1
+requires-python = ">=3.13"
+
+[[package]]
+name = "cocotb"
+version = "1.9.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "find-libpython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/dc/4bd01e86f7ad85dfc6eec681a94db1a856aa35c58777a297e271100ac24c/cocotb-1.9.2.tar.gz", hash = "sha256:e4cdeaf51ec1b14e5430083ac56edc0b48ad05184f0307d90de44ff7bfdb1652", size = 300696 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/9b/68332cd317d449c32e5ed8318343805f59e73481d6c5dcb01b8060ac412e/cocotb-1.9.2-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:a60f6b3c4e4f5e9265a18c86927af1d773fb79b32edf577ce2ba8d59d74acafc", size = 611792 },
+    { url = "https://files.pythonhosted.org/packages/9a/79/dadc212d62e57bc381ab403bae8a442b8903f84c4807075bd236071092ce/cocotb-1.9.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9cc00e5ddf5fea392a8a3406869396c7e5a736a08afc8e0fe45ad159151438ba", size = 4213277 },
+    { url = "https://files.pythonhosted.org/packages/a0/22/4578c0f67443ae00e63f6d9987bd48287b1ad141941780277a9bd8faa4ce/cocotb-1.9.2-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6264826ee4dd6acc678dd2572f3cd683da6a48013af82de81bf8a45b5e064b8e", size = 4094427 },
+    { url = "https://files.pythonhosted.org/packages/29/71/6b77f173866dd64f3b898ec15ec1103eee43fb7b212108e51fea9b866a67/cocotb-1.9.2-cp313-cp313-win32.whl", hash = "sha256:7cdb25ca9dd2483d96f30b1cf3c070e4a6527d43e0af2d66660de29727c81cd4", size = 492087 },
+    { url = "https://files.pythonhosted.org/packages/01/f0/71d15e3735df2135f600cac25e2174c7fee55d250e46a00fe800417c1aab/cocotb-1.9.2-cp313-cp313-win_amd64.whl", hash = "sha256:c816972ec4b3360372075fb0563cf98e8ad7d0f158e8dfe3165824936383a888", size = 523541 },
+]
+
+[[package]]
+name = "colorama"
+version = "0.4.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335 },
+]
+
+[[package]]
+name = "find-libpython"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/19/edd1da36c129fea75b82c3c079fc8ba72de945515364d660962e5c922ae3/find_libpython-0.4.1.tar.gz", hash = "sha256:7e6edbbaaa8648c8c7c13c54b127653c83cfb01a853db7e5b1ee2e97c10b2353", size = 9005 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/6f/a3248471536a785379969642604fe7ff576520a8b4d4f820ecfd45639f35/find_libpython-0.4.1-py3-none-any.whl", hash = "sha256:22e522957e05f293c3403d0122c77d18007c5196f61054905c480e01b75fa236", size = 8751 },
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760", size = 6050 },
+]
+
+[[package]]
+name = "packaging"
+version = "25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469 },
+]
+
+[[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3", size = 69412 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746", size = 20538 },
+]
+
+[[package]]
+name = "pygments"
+version = "2.19.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/77/a5b8c569bf593b0140bde72ea885a803b82086995367bf2037de0159d924/pygments-2.19.2.tar.gz", hash = "sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887", size = 4968631 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/21/705964c7812476f378728bdf590ca4b771ec72385c533964653c68e86bdc/pygments-2.19.2-py3-none-any.whl", hash = "sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b", size = 1225217 },
+]
+
+[[package]]
+name = "pytest"
+version = "8.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/08/ba/45911d754e8eba3d5a841a5ce61a65a685ff1798421ac054f85aa8747dfb/pytest-8.4.1.tar.gz", hash = "sha256:7c67fd69174877359ed9371ec3af8a3d2b04741818c51e5e99cc1742251fa93c", size = 1517714 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/29/16/c8a903f4c4dffe7a12843191437d7cd8e32751d5de349d45d3fe69544e87/pytest-8.4.1-py3-none-any.whl", hash = "sha256:539c70ba6fcead8e78eebbf1115e8b589e7565830d7d006a8723f19ac8a0afb7", size = 365474 },
+]
+
+[[package]]
+name = "test"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "cocotb" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cocotb", specifier = ">=1.9.2" },
+    { name = "pytest" },
+]
