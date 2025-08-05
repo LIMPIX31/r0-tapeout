@@ -1,10 +1,10 @@
 `define VGA_DE
 
 module top
-( input logic i_rst_n
-, input logic i_clk_50m
+( input  logic i_rst_n
+, input  logic i_clk_50m
 
-, input logic i_btn_n
+, input  logic i_btn_n
 
 , output logic       o_hdmi_clk_p
 , output logic       o_hdmi_clk_n
@@ -25,9 +25,9 @@ module top
 
     tt_um_r0 u_dut
     ( .clk(hdmi_pclk)
-    , .ui_in({6'd0, i_btn_n})
+    , .ui_in({7'd0, i_btn_n})
     , .uo_out({hs, bl, gl, rl, vs, bm, gm, rm})
-    , .uio_in(0)
+    , .uio_in(8'd0)
     , .uio_out()
     , .uio_oe()
 
