@@ -23,13 +23,12 @@ module tt_um_r0
     logic btn;
 
     logic [15:0] rnd;
-    logic [19:0] last_result;
-    logic [19:0] best_result;
+    logic [18:0] result [2];
     logic lit, miss;
 
     logic [4:0]  char;
     logic [1:0]  color;
-    logic [25:0] bcd;
+    logic [23:0] bcd;
     logic bcd_mux;
 
     logic [9:0] x, y;
@@ -37,6 +36,16 @@ module tt_um_r0
 
     logic [1:0] o_r, o_g, o_b;
     logic o_hs, o_vs;
+
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            result[1] <= {19{1'b1}};
+        end else if (result[0] < result[1]) begin
+            result[1] <= result[0];
+        end else begin
+            result[1] <= result[1];
+        end
+    end
 
     io_map u_io
     ( .ena(ena)
@@ -68,11 +77,11 @@ module tt_um_r0
 
     , .o_lit(lit)
     , .o_miss(miss)
-    , .o_measured(last_result)
+    , .o_measured(result[0])
     );
 
     bcd_project u_bcd
-    ( .bin(bcd_mux ? best_result : last_result)
+    ( .bin(bcd_mux ? result[1] : result[0])
     , .bcd(bcd)
     );
 
@@ -82,6 +91,7 @@ module tt_um_r0
     , .i_bcd(bcd)
     , .i_lit(lit)
     , .i_miss(miss)
+    , .i_init(&result[1])
 
     , .o_bcdmux(bcd_mux)
     , .o_char(char)
@@ -165,15 +175,18 @@ module core_fsm
 
 , output logic o_lit
 , output logic o_miss
-, output logic [19:0] o_measured
+, output logic [18:0] o_measured
 );
 
     logic        btn_d;
     logic [4:0]  sub;
-    logic [24:0] cnt;
+    logic [23:0] cnt;
     logic [15:0] target;
 
     logic clicked;
+    logic bcd_rst;
+    logic tick;
+    logic overflow;
 
     enum logic [2:0]
     { IDLE
@@ -191,28 +204,31 @@ module core_fsm
 
     always_ff @(posedge i_clk) begin
         if (i_rst) begin
-            state  <= IDLE;
-            cnt    <= 0;
-            sub    <= 0;
-            target <= 0;
-            btn_d  <= 0;
+            state      <= IDLE;
+            cnt        <= 0;
+            sub        <= 0;
+            target     <= 0;
+            btn_d      <= 0;
+            o_measured <= {19{1'b1}};
         end else begin
             btn_d <= i_btn;
 
             unique case (state)
-                IDLE: if (clicked) begin
-                    state  <= DEBOUNCE;
-                    target <= i_rnd;
-                    cnt    <= 0;
-                    sub    <= 0;
+                IDLE: begin
+                    if (clicked) begin
+                        state  <= DEBOUNCE;
+                        target <= i_rnd;
+                    end
+
+                    cnt <= 0;
                 end
                 // Debounce button input
                 DEBOUNCE: begin
                     if (&cnt[19:0]) begin
                         state <= WAIT;
-                        cnt   <= 0;
+                        cnt <= 0;
                     end else begin
-                        cnt <= cnt + 25'd1;
+                        cnt <= cnt + 24'd1;
                     end
                 end
                 // Wait for green
@@ -220,41 +236,43 @@ module core_fsm
                     // Catch early hit
                     if (clicked) begin
                         state  <= EARLY;
-                        cnt    <= 0;
-                    end else if (cnt[24:9] == target) begin
+                        cnt <= 0;
+                    end else if (cnt[23:8] >= target) begin
                         state <= FBK;
-                        cnt   <= 0;
+                        cnt <= 0;
                     end else begin
-                        cnt <= cnt + 25'd1;
+                        cnt <= cnt + 24'd1;
                     end
                 end
                 // Wait for feedback signal to compensate time
-                FBK: if (i_fbk) begin
-                    state <= MEASURE;
+                FBK: begin
+                    if (i_fbk) begin
+                        state <= MEASURE;
+                    end
+
+                    sub <= 0;
                 end
                 MEASURE: begin
                     // Return to IDLE state if counter goes too high
-                    if (&cnt[19:0]) begin
+                    if (&cnt[18:0]) begin
                         state <= IDLE;
-                        cnt   <= 0;
+                        cnt <= 0;
                     end else if (clicked) begin
-                        o_measured <= cnt[19:0];
-                        cnt   <= 0;
                         state <= FINISH;
-                    end else if (sub == 5'd24) begin
+                        cnt <= 0;
+                        o_measured <= cnt[18:0];
+                    end else if (sub >= 5'd24) begin
                         sub <= 0;
-                        cnt <= cnt + 25'd1;
+                        cnt <= cnt + 24'd1;
                     end else begin
                         sub <= sub + 5'd1;
-                        cnt <= cnt;
                     end
                 end
                 EARLY, FINISH: begin
                     if (&cnt) begin
                         state <= IDLE;
-                        cnt   <= 0;
                     end else begin
-                        cnt <= cnt + 25'd1;
+                        cnt <= cnt + 24'd1;
                     end
                 end
             endcase
@@ -276,7 +294,7 @@ module prng
 
     always @(posedge clk) begin
         if (rst) begin
-            rnd <= 16'hDEAD;
+            rnd <= 0;
         end else begin
             rnd <= {rnd[14:0], feedback} | 1;
         end
@@ -287,9 +305,10 @@ endmodule
 module layout
 ( input  logic [9:0]  i_x
 , input  logic [9:0]  i_y
-, input  logic [25:0] i_bcd
+, input  logic [23:0] i_bcd
 , input  logic        i_lit
 , input  logic        i_miss
+, input  logic        i_init
 
 , output logic       o_bcdmux
 , output logic [4:0] o_char
@@ -297,34 +316,39 @@ module layout
 );
 
     logic [6:0] block_x, block_y;
+    logic [3:0] offset;
+    logic y_active, x_active;
 
     assign block_x = i_x[9:3];
     assign block_y = i_y[9:3];
 
+    assign y_active = block_y[6:1] == 6'd10;
+    assign x_active = (block_x >= 7'd20) && (block_x <= 7'd29);
+
+    assign offset = (block_x - 7'd20);
+
     always_comb begin
-        o_bcdmux = 1'b0;
-        o_color = {i_miss, i_lit};
+        o_char   = 5'b11111;
+        o_bcdmux = block_y[0];
+        o_color  = {i_miss, i_lit};
 
-        unique case (block_y)
-            20: begin
-                o_bcdmux = 1'b0;
-
-                unique case (block_x)
-                    20 + 0: o_char = 5'b10000;
-                    20 + 1: o_char = {3'd0, i_bcd[25:24]};
-                    20 + 2: o_char = 5'b10000;
-                    20 + 3: o_char = {1'b0, i_bcd[23:20]};
-                    20 + 4: o_char = {1'b0, i_bcd[19:16]};
-                    20 + 5: o_char = {3'd0, i_bcd[15:12]};
-                    20 + 6: o_char = 5'b10000;
-                    20 + 7: o_char = {1'b0, i_bcd[11:8]};
-                    20 + 8: o_char = {1'b0, i_bcd[7:4]};
-                    20 + 9: o_char = {1'b0, i_bcd[3:0]};
+        if (y_active && x_active) begin
+            if (i_init) begin
+                o_char = 5'b01011;
+            end else begin
+                case (offset)
+                    4'd0: o_char = 5'b01010;
+                    4'd1: o_char = {1'b0, i_bcd[23:20]};
+                    4'd2: o_char = {1'b0, i_bcd[19:16]};
+                    4'd3: o_char = {3'd0, i_bcd[15:12]};
+                    4'd4: o_char = 5'b01010;
+                    4'd5: o_char = {1'b0, i_bcd[11:8]};
+                    4'd6: o_char = {1'b0, i_bcd[7:4]};
+                    4'd7: o_char = {1'b0, i_bcd[3:0]};
                     default: o_char = 5'b11111;
                 endcase
             end
-            default: o_char = 5'b11111;
-        endcase
+        end
     end
 
 endmodule : layout
@@ -377,7 +401,7 @@ module graphics
 endmodule : graphics
 
 module bcd_project #
-( parameter int unsigned W = 20
+( parameter int unsigned W = 19
 , parameter int unsigned BCD_W = W + (W - 4) / 3
 )
 ( input  logic [W-1:0]   bin
@@ -429,21 +453,23 @@ module vga_timings #
     localparam int unsigned V_SYNC_END   = V_SYNC_START + V_SYNC;
 
     logic [9:0] nx, ny;
-    logic nhs, nvs, nof;
 
     `ifdef VGA_DE
         logic nde;
     `endif
 
+    assign hs = x <= H_SYNC_START || x > H_SYNC_END;
+    assign vs = y <= V_SYNC_START || y > V_SYNC_END;
+
     always_comb begin
-        nof = 0;
+        of = 0;
 
         if (x == H_TOTAL - 1) begin
             nx = 0;
 
             if (y == V_TOTAL - 1) begin
                 ny = 0;
-                nof = 1'b1;
+                of = 1'b1;
             end else begin
                 ny = y + 10'd1;
             end
@@ -451,18 +477,12 @@ module vga_timings #
             nx = x + 10'd1;
             ny = y;
         end
-
-        nhs = x <= H_SYNC_START || x > H_SYNC_END;
-        nvs = y <= V_SYNC_START || y > V_SYNC_END;
     end
 
     always_ff @(posedge clk) begin
         if (rst) begin
             x  <= 0;
             y  <= 0;
-            hs <= 0;
-            vs <= 0;
-            of <= 0;
 
             `ifdef VGA_DE
                 de <= 0;
@@ -470,9 +490,6 @@ module vga_timings #
         end else begin
             x  <= nx;
             y  <= ny;
-            hs <= nhs;
-            vs <= nvs;
-            of <= nof;
 
             `ifdef VGA_DE
                 de <= nx < H_ACTIVE && ny < V_ACTIVE;
@@ -490,124 +507,124 @@ module bitmap_rom
 , output logic       dot
 );
 
+    logic [0:7] rom [96];
+    logic [7:0] addr;
+
     logic [0:7] data;
 
-    assign dot = data[col];
+    assign addr = {char, row};
+    assign data = rom[addr];
+    assign dot  = data[col];
 
-    always_comb begin
-        unique case ({char, row})
-            // 0
-            8'b00000_000: data = 8'b00111000;
-            8'b00000_001: data = 8'b01000100;
-            8'b00000_010: data = 8'b01001100;
-            8'b00000_011: data = 8'b01010100;
-            8'b00000_100: data = 8'b01100100;
-            8'b00000_101: data = 8'b01000100;
-            8'b00000_110: data = 8'b00111000;
-            8'b00000_111: data = 8'b00000000;
-
-            // 1
-            8'b00001_000: data = 8'b00010000;
-            8'b00001_001: data = 8'b00110000;
-            8'b00001_010: data = 8'b01010000;
-            8'b00001_011: data = 8'b00010000;
-            8'b00001_100: data = 8'b00010000;
-            8'b00001_101: data = 8'b00010000;
-            8'b00001_110: data = 8'b01111100;
-            8'b00001_111: data = 8'b00000000;
-
-            // 2
-            8'b00010_000: data = 8'b00111000;
-            8'b00010_001: data = 8'b01000100;
-            8'b00010_010: data = 8'b00000100;
-            8'b00010_011: data = 8'b00001000;
-            8'b00010_100: data = 8'b00110000;
-            8'b00010_101: data = 8'b01000000;
-            8'b00010_110: data = 8'b01111100;
-            8'b00010_111: data = 8'b00000000;
-
-            // 3
-            8'b00011_000: data = 8'b00111000;
-            8'b00011_001: data = 8'b01000100;
-            8'b00011_010: data = 8'b00000100;
-            8'b00011_011: data = 8'b00011000;
-            8'b00011_100: data = 8'b00000100;
-            8'b00011_101: data = 8'b01000100;
-            8'b00011_110: data = 8'b00111000;
-            8'b00011_111: data = 8'b00000000;
-
-            // 4
-            8'b00100_000: data = 8'b00001000;
-            8'b00100_001: data = 8'b00011000;
-            8'b00100_010: data = 8'b00101000;
-            8'b00100_011: data = 8'b01001000;
-            8'b00100_100: data = 8'b01111100;
-            8'b00100_101: data = 8'b00001000;
-            8'b00100_110: data = 8'b00001000;
-            8'b00100_111: data = 8'b00000000;
-
-            // 5
-            8'b00101_000: data = 8'b01111100;
-            8'b00101_001: data = 8'b01000000;
-            8'b00101_010: data = 8'b01111000;
-            8'b00101_011: data = 8'b00000100;
-            8'b00101_100: data = 8'b00000100;
-            8'b00101_101: data = 8'b01000100;
-            8'b00101_110: data = 8'b00111000;
-            8'b00101_111: data = 8'b00000000;
-
-            // 6
-            8'b00110_000: data = 8'b00011100;
-            8'b00110_001: data = 8'b00100000;
-            8'b00110_010: data = 8'b01000000;
-            8'b00110_011: data = 8'b01111000;
-            8'b00110_100: data = 8'b01000100;
-            8'b00110_101: data = 8'b01000100;
-            8'b00110_110: data = 8'b00111000;
-            8'b00110_111: data = 8'b00000000;
-
-            // 7
-            8'b00111_000: data = 8'b01111100;
-            8'b00111_001: data = 8'b00000100;
-            8'b00111_010: data = 8'b00001000;
-            8'b00111_011: data = 8'b00010000;
-            8'b00111_100: data = 8'b00100000;
-            8'b00111_101: data = 8'b00100000;
-            8'b00111_110: data = 8'b00100000;
-            8'b00111_111: data = 8'b00000000;
-
-            // 8
-            8'b01000_000: data = 8'b00111000;
-            8'b01000_001: data = 8'b01000100;
-            8'b01000_010: data = 8'b01000100;
-            8'b01000_011: data = 8'b00111000;
-            8'b01000_100: data = 8'b01000100;
-            8'b01000_101: data = 8'b01000100;
-            8'b01000_110: data = 8'b00111000;
-            8'b01000_111: data = 8'b00000000;
-
-            // 9
-            8'b01001_000: data = 8'b00111000;
-            8'b01001_001: data = 8'b01000100;
-            8'b01001_010: data = 8'b01000100;
-            8'b01001_011: data = 8'b00111100;
-            8'b01001_100: data = 8'b00000100;
-            8'b01001_101: data = 8'b00001000;
-            8'b01001_110: data = 8'b01110000;
-            8'b01001_111: data = 8'b00000000;
-
-            // .
-            8'b10000_000: data = 8'b00000000;
-            8'b10000_001: data = 8'b00000000;
-            8'b10000_010: data = 8'b00000000;
-            8'b10000_011: data = 8'b00000000;
-            8'b10000_100: data = 8'b00000000;
-            8'b10000_101: data = 8'b00000000;
-            8'b10000_110: data = 8'b00010000;
-            8'b10000_111: data = 8'b00000000;
-
-            default:      data = 8'b00000000;
-        endcase
+    initial begin
+        // 0
+        rom[8'b00000_000] = 8'b00111000;
+        rom[8'b00000_001] = 8'b01000100;
+        rom[8'b00000_010] = 8'b01001100;
+        rom[8'b00000_011] = 8'b01010100;
+        rom[8'b00000_100] = 8'b01100100;
+        rom[8'b00000_101] = 8'b01000100;
+        rom[8'b00000_110] = 8'b00111000;
+        rom[8'b00000_111] = 8'b00000000;
+        // 1
+        rom[8'b00001_000] = 8'b00010000;
+        rom[8'b00001_001] = 8'b00110000;
+        rom[8'b00001_010] = 8'b01010000;
+        rom[8'b00001_011] = 8'b00010000;
+        rom[8'b00001_100] = 8'b00010000;
+        rom[8'b00001_101] = 8'b00010000;
+        rom[8'b00001_110] = 8'b01111100;
+        rom[8'b00001_111] = 8'b00000000;
+        // 2
+        rom[8'b00010_000] = 8'b00111000;
+        rom[8'b00010_001] = 8'b01000100;
+        rom[8'b00010_010] = 8'b00000100;
+        rom[8'b00010_011] = 8'b00001000;
+        rom[8'b00010_100] = 8'b00110000;
+        rom[8'b00010_101] = 8'b01000000;
+        rom[8'b00010_110] = 8'b01111100;
+        rom[8'b00010_111] = 8'b00000000;
+        // 3
+        rom[8'b00011_000] = 8'b00111000;
+        rom[8'b00011_001] = 8'b01000100;
+        rom[8'b00011_010] = 8'b00000100;
+        rom[8'b00011_011] = 8'b00011000;
+        rom[8'b00011_100] = 8'b00000100;
+        rom[8'b00011_101] = 8'b01000100;
+        rom[8'b00011_110] = 8'b00111000;
+        rom[8'b00011_111] = 8'b00000000;
+        // 4
+        rom[8'b00100_000] = 8'b00001000;
+        rom[8'b00100_001] = 8'b00011000;
+        rom[8'b00100_010] = 8'b00101000;
+        rom[8'b00100_011] = 8'b01001000;
+        rom[8'b00100_100] = 8'b01111100;
+        rom[8'b00100_101] = 8'b00001000;
+        rom[8'b00100_110] = 8'b00001000;
+        rom[8'b00100_111] = 8'b00000000;
+        // 5
+        rom[8'b00101_000] = 8'b01111100;
+        rom[8'b00101_001] = 8'b01000000;
+        rom[8'b00101_010] = 8'b01111000;
+        rom[8'b00101_011] = 8'b00000100;
+        rom[8'b00101_100] = 8'b00000100;
+        rom[8'b00101_101] = 8'b01000100;
+        rom[8'b00101_110] = 8'b00111000;
+        rom[8'b00101_111] = 8'b00000000;
+        // 6
+        rom[8'b00110_000] = 8'b00011100;
+        rom[8'b00110_001] = 8'b00100000;
+        rom[8'b00110_010] = 8'b01000000;
+        rom[8'b00110_011] = 8'b01111000;
+        rom[8'b00110_100] = 8'b01000100;
+        rom[8'b00110_101] = 8'b01000100;
+        rom[8'b00110_110] = 8'b00111000;
+        rom[8'b00110_111] = 8'b00000000;
+        // 7
+        rom[8'b00111_000] = 8'b01111100;
+        rom[8'b00111_001] = 8'b00000100;
+        rom[8'b00111_010] = 8'b00001000;
+        rom[8'b00111_011] = 8'b00010000;
+        rom[8'b00111_100] = 8'b00100000;
+        rom[8'b00111_101] = 8'b00100000;
+        rom[8'b00111_110] = 8'b00100000;
+        rom[8'b00111_111] = 8'b00000000;
+        // 8
+        rom[8'b01000_000] = 8'b00111000;
+        rom[8'b01000_001] = 8'b01000100;
+        rom[8'b01000_010] = 8'b01000100;
+        rom[8'b01000_011] = 8'b00111000;
+        rom[8'b01000_100] = 8'b01000100;
+        rom[8'b01000_101] = 8'b01000100;
+        rom[8'b01000_110] = 8'b00111000;
+        rom[8'b01000_111] = 8'b00000000;
+        // 9
+        rom[8'b01001_000] = 8'b00111000;
+        rom[8'b01001_001] = 8'b01000100;
+        rom[8'b01001_010] = 8'b01000100;
+        rom[8'b01001_011] = 8'b00111100;
+        rom[8'b01001_100] = 8'b00000100;
+        rom[8'b01001_101] = 8'b00001000;
+        rom[8'b01001_110] = 8'b01110000;
+        rom[8'b01001_111] = 8'b00000000;
+        // .
+        rom[8'b01010_000] = 8'b00000000;
+        rom[8'b01010_001] = 8'b00000000;
+        rom[8'b01010_010] = 8'b00000000;
+        rom[8'b01010_011] = 8'b00000000;
+        rom[8'b01010_100] = 8'b00000000;
+        rom[8'b01010_101] = 8'b00000000;
+        rom[8'b01010_110] = 8'b00010000;
+        rom[8'b01010_111] = 8'b00000000;
+        // unk
+        rom[8'b01011_000] = 8'b00010001;
+        rom[8'b01011_001] = 8'b00100010;
+        rom[8'b01011_010] = 8'b01000100;
+        rom[8'b01011_011] = 8'b10001000;
+        rom[8'b01011_100] = 8'b00010001;
+        rom[8'b01011_101] = 8'b00100010;
+        rom[8'b01011_110] = 8'b01000100;
+        rom[8'b01011_111] = 8'b10001000;
     end
 
 endmodule : bitmap_rom
