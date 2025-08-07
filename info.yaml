@@ -18,12 +18,20 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.sv"
+    - "io_map.sv"
+    - "bitmap_rom.sv"
+    - "bcd_project.sv"
+    - "core_fsm.sv"
+    - "graphics.sv"
+    - "layout.sv"
+    - "prng.sv"
+    - "vga_timings.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
+  ui[0]: "btn"
   ui[1]: ""
   ui[2]: ""
   ui[3]: ""

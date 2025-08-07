@@ -12,7 +12,7 @@ top = "top"
 [files]
 verilog = [
   "**/*.sv",
-  "../src/project.sv",
+  "../src/**/*.sv",
   "**/*[!_tmp].v"
 ]
 cst = "phy.cst"
