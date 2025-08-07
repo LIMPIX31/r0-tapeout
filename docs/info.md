@@ -9,12 +9,24 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+It's a lightweight version of the original [r0](https://github.com/LIMPIX31/r0) project, optimized for a smaller area on
+ASIC.
+
+**r0** lets you measure human reaction time really accurately interfacing only VGA compatible monitor and a single
+button. The precision is 1 microsecond.
 
 ## How to test
 
-Explain how to use your project
+* Connect your monitor to Tiny VGA and the button to `ui[0]`.
+* Press the button once to get ready.
+* and as soon as you see green on the monitor, press the button as quickly as possible.
+* Try press earlier, the screen will turn red, which means that your reaction was false.
+
+The state is not synchronized with vsync, so the monitor may display only a few green lines before you react, which
+gives you flexibility in your response. It also forces you to watch the entire monitor, not just the upper left corner,
+waiting for the first green pixel.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+* Tiny VGA
+* Pulled-up button to `ui[0]`
