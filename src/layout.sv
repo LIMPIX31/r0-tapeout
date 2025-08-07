@@ -12,10 +12,10 @@ module layout
 , output logic [1:0] o_color
 );
 
-    localparam int unsigned RECT_X = 20;
-    localparam int unsigned RECT_Y = 20;
-    localparam int unsigned LINES  = 7;
-    localparam int unsigned LENGTH = 21;
+    localparam bit [6:0] RECT_X = 20;
+    localparam bit [6:0] RECT_Y = 20;
+    localparam bit [6:0] LINES  = 7;
+    localparam bit [6:0] LENGTH = 21;
 
     logic [6:0] block_x, block_y;
     logic [4:0] offset_x;
@@ -85,6 +85,7 @@ module layout
             3'b011: lines[0][0:3] = { 5'b11000, 5'b10111, 5'b01111, 5'b01111 };
             // "Hit"
             3'b110: lines[0][0:2] = { 5'b11110, 5'b10111, 5'b10010 };
+            default: begin end
         endcase
 
         // "Last: "

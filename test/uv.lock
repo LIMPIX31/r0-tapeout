@@ -99,5 +99,5 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "cocotb", specifier = ">=1.9.2" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">=8.4.1" },
 ]

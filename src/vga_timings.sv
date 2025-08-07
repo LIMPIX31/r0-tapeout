@@ -1,12 +1,12 @@
 module vga_timings #
-( parameter int unsigned H_TOTAL = 800
-, parameter int unsigned H_ACTIVE = 640
-, parameter int unsigned V_TOTAL = 525
-, parameter int unsigned V_ACTIVE = 480
-, parameter int unsigned H_FRONT_PORCH = 16
-, parameter int unsigned H_SYNC = 96
-, parameter int unsigned V_FRONT_PORCH = 10
-, parameter int unsigned V_SYNC = 2
+( parameter bit [9:0] H_TOTAL = 800
+, parameter bit [9:0] H_ACTIVE = 640
+, parameter bit [9:0] V_TOTAL = 525
+, parameter bit [9:0] V_ACTIVE = 480
+, parameter bit [9:0] H_FRONT_PORCH = 16
+, parameter bit [9:0] H_SYNC = 96
+, parameter bit [9:0] V_FRONT_PORCH = 10
+, parameter bit [9:0] V_SYNC = 2
 )
 ( input  logic clk
 , input  logic rst

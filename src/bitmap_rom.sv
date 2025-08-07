@@ -6,10 +6,12 @@ module bitmap_rom
 , output logic       dot
 );
 
+    // verilator lint_off ASCRANGE
     logic [0:7] rom [248];
     logic [7:0] addr;
 
     logic [0:7] data;
+    // verilator lint_on ASCRANGE
 
     assign addr = {char, row};
     assign data = rom[addr];
