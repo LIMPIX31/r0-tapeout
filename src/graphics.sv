@@ -1,23 +1,23 @@
 module graphics
-( input  logic [5:0] i_char
-, input  logic [1:0] i_color
-, input  logic [9:0] i_x, i_y
-, input  logic [5:0] i_rgb
-, input  logic       i_sel
+( input  logic [5:0]  i_char
+, input  logic [1:0]  i_color
+, input  logic [10:0] i_x, i_y
+, input  logic [5:0]  i_rgb
+, input  logic        i_sel
 
-, output logic [5:0] o_video
+, output logic [5:0]  o_video
 );
 
     logic [2:0] cx, cy;
     logic [5:0] fg, bg;
-    logic [13:0] _unused;
+    logic [15:0] _unused;
 
     logic dot;
 
     assign cx = i_x[2:0];
     assign cy = i_y[2:0];
 
-    assign _unused = {i_x[9:3], i_y[9:3]};
+    assign _unused = {i_x[10:3], i_y[10:3]};
 
     always_comb begin
         if (i_sel) begin

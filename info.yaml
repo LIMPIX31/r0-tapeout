@@ -20,7 +20,7 @@ project:
     - "project.sv"
     - "io_map.sv"
     - "bitmap_rom.sv"
-    - "bcd_project.sv"
+    - "bcd_counter.sv"
     - "core_fsm.sv"
     - "graphics.sv"
     - "layout.sv"

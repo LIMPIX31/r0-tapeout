@@ -24,7 +24,7 @@ module hclk
     , .ODIV4_SEL(8)
     , .ODIV5_SEL(8)
     , .ODIV6_SEL(8)
-    , .MDIV_SEL(25)
+    , .MDIV_SEL(40)
     , .MDIV_FRAC_SEL(0)
     , .ODIV0_FRAC_SEL(0)
     , .CLKOUT0_EN("TRUE")

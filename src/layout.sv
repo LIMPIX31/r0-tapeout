@@ -1,6 +1,6 @@
 module layout
-( input  logic [9:0]  i_x
-, input  logic [9:0]  i_y
+( input  logic [10:0] i_x
+, input  logic [10:0] i_y
 , input  logic [2:0]  i_dst
 , input  logic [23:0] i_bcd
 , input  logic        i_lit
@@ -13,12 +13,12 @@ module layout
 , output logic        o_rgbmux
 );
 
-    localparam bit [6:0] RECT_X = 20;
-    localparam bit [6:0] RECT_Y = 20;
-    localparam bit [6:0] LINES  = 10;
-    localparam bit [6:0] LENGTH = 21;
+    localparam bit [7:0] RECT_X = 20;
+    localparam bit [7:0] RECT_Y = 20;
+    localparam bit [7:0] LINES  = 10;
+    localparam bit [7:0] LENGTH = 21;
 
-    logic [6:0] block_x, block_y;
+    logic [7:0] block_x, block_y;
     logic [4:0] offset_x;
     logic [3:0] offset_y;
     logic y_active, x_active;
@@ -27,8 +27,8 @@ module layout
 
     logic [5:0] _unused;
 
-    assign block_x = i_x[9:3];
-    assign block_y = i_y[9:3];
+    assign block_x = i_x[10:3];
+    assign block_y = i_y[10:3];
 
     assign y_active = (block_y >= RECT_Y) && (block_y < RECT_Y + LINES);
     assign x_active = (block_x >= RECT_X) && (block_x < RECT_X + LENGTH);

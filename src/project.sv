@@ -22,29 +22,25 @@ module tt_um_r0
 
     logic btn;
 
-    logic [18:0] result [2];
+    logic [23:0] result [2];
     logic lit, miss;
 
     logic [5:0]  char;
     logic [1:0]  color;
-    logic [24:0] bcd;
+    logic [23:0] bcd;
     logic [2:0]  display_state;
     logic [5:0]  shrnd;
     logic bcd_mux, rgb_mux;
 
-    logic [9:0] x, y;
+    logic [10:0] x, y;
     logic hs, vs;
 
     logic [1:0] o_r, o_g, o_b;
     logic o_hs, o_vs;
 
-    logic [0:0] _unused;
-
-    assign _unused = bcd[24];
-
     always_ff @(posedge clk) begin
         if (rst) begin
-            result[1] <= {19{1'b1}};
+            result[1] <= {6{4'b1111}};
         end else if (result[0] < result[1]) begin
             result[1] <= result[0];
         end else begin
@@ -75,7 +71,6 @@ module tt_um_r0
     ( .i_clk(clk)
     , .i_rst(rst)
     , .i_btn(btn)
-    , .i_fbk(1'b1)
 
     , .o_lit(lit)
     , .o_miss(miss)
@@ -84,15 +79,10 @@ module tt_um_r0
     , .o_shrnd(shrnd)
     );
 
-    bcd_project u_bcd
-    ( .bin(bcd_mux ? result[1] : result[0])
-    , .bcd(bcd)
-    );
-
     layout u_layout
     ( .i_x(x)
     , .i_y(y)
-    , .i_bcd(bcd[23:0])
+    , .i_bcd(bcd_mux ? result[1] : result[0])
     , .i_lit(lit)
     , .i_miss(miss)
     , .i_init(&result[1])
