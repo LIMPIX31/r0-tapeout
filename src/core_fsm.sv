@@ -3,18 +3,18 @@ module core_fsm
 , input  logic i_rst
 , input  logic i_btn
 , input  logic i_fbk
-, input  logic [15:0] i_rnd
 
 , output logic o_lit
 , output logic o_miss
 , output logic [2:0]  o_dst
 , output logic [18:0] o_measured
+, output logic [5:0]  o_shrnd
 );
 
     logic        btn_d;
     logic [4:0]  sub;
-    logic [23:0] cnt;
-    logic [15:0] target;
+    logic [26:0] cnt;
+    logic [15:0] rnd;
 
     logic clicked;
 
@@ -31,6 +31,7 @@ module core_fsm
     assign o_lit   = state == FBK || state == MEASURE;
     assign o_miss  = state == EARLY;
     assign clicked = i_btn & ~btn_d;
+    assign o_shrnd = rnd[5:0];
 
     always_comb begin
         unique case (state)
@@ -47,7 +48,7 @@ module core_fsm
             state      <= IDLE;
             cnt        <= 0;
             sub        <= 0;
-            target     <= 0;
+            rnd        <= 16'hDEAD;
             btn_d      <= 0;
             o_measured <= {19{1'b1}};
         end else begin
@@ -57,9 +58,9 @@ module core_fsm
                 IDLE: begin
                     if (clicked) begin
                         state  <= DEBOUNCE;
-                        target <= i_rnd;
                     end
 
+                    rnd <= {rnd[14:0], rnd[15] ^ rnd[13] ~^ rnd[12] ^ rnd[10]};
                     cnt <= 0;
                 end
                 // Debounce button input
@@ -68,7 +69,7 @@ module core_fsm
                         state <= WAIT;
                         cnt <= 0;
                     end else begin
-                        cnt <= cnt + 24'd1;
+                        cnt <= cnt + 27'd1;
                     end
                 end
                 // Wait for green
@@ -77,11 +78,11 @@ module core_fsm
                     if (clicked) begin
                         state  <= EARLY;
                         cnt <= 0;
-                    end else if (cnt[23:8] >= target) begin
+                    end else if (cnt[26:11] >= rnd) begin
                         state <= FBK;
                         cnt <= 0;
                     end else begin
-                        cnt <= cnt + 24'd1;
+                        cnt <= cnt + 27'd1;
                     end
                 end
                 // Wait for feedback signal to compensate time
@@ -103,16 +104,16 @@ module core_fsm
                         o_measured <= cnt[18:0];
                     end else if (sub >= 5'd24) begin
                         sub <= 0;
-                        cnt <= cnt + 24'd1;
+                        cnt <= cnt + 27'd1;
                     end else begin
                         sub <= sub + 5'd1;
                     end
                 end
                 EARLY, FINISH: begin
-                    if (&cnt) begin
+                    if (&cnt[24:0]) begin
                         state <= IDLE;
                     end else begin
-                        cnt <= cnt + 24'd1;
+                        cnt <= cnt + 27'd1;
                     end
                 end
             endcase

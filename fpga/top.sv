@@ -21,7 +21,7 @@ module top
 
     logic [2:0][9:0] chan_vec;
 
-    assign video = {rm, rl, 6'd0, gm, gl, 6'd0, bm, bl, 6'd0};
+    assign video = {{4{rm, rl}}, {4{gm, gl}}, {4{bm, bl}}};
 
     tt_um_r0 u_dut
     ( .clk(hdmi_pclk)

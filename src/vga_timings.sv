@@ -11,7 +11,7 @@ module vga_timings #
 ( input  logic clk
 , input  logic rst
 
-, output logic hs, vs, of
+, output logic hs, vs
 , output logic [9:0] x, y
 
 `ifdef VGA_DE
@@ -24,48 +24,22 @@ module vga_timings #
     localparam bit [9:0] V_SYNC_START = 10'(V_ACTIVE + V_FRONT_PORCH);
     localparam bit [9:0] V_SYNC_END   = 10'(V_SYNC_START + V_SYNC);
 
-    logic [9:0] nx, ny;
-
     `ifdef VGA_DE
-        logic nde;
+        assign de = x < H_ACTIVE && y < V_ACTIVE;
     `endif
 
     assign hs = x <= H_SYNC_START || x > H_SYNC_END;
     assign vs = y <= V_SYNC_START || y > V_SYNC_END;
 
-    always_comb begin
-        of = 0;
-
-        if (x == H_TOTAL - 1) begin
-            nx = 0;
-
-            if (y == V_TOTAL - 1) begin
-                ny = 0;
-                of = 1'b1;
-            end else begin
-                ny = y + 10'd1;
-            end
-        end else begin
-            nx = x + 10'd1;
-            ny = y;
-        end
-    end
-
     always_ff @(posedge clk) begin
         if (rst) begin
-            x  <= 0;
-            y  <= 0;
-
-            `ifdef VGA_DE
-                de <= 0;
-            `endif
+            x <= 0;
+            y <= 0;
+        end else if (x == H_TOTAL - 1) begin
+            x <= 0;
+            y <= (y == V_TOTAL - 1) ? 10'd0 : y + 10'd1;
         end else begin
-            x  <= nx;
-            y  <= ny;
-
-            `ifdef VGA_DE
-                de <= nx < H_ACTIVE && ny < V_ACTIVE;
-            `endif
+            x <= x + 10'd1;
         end
     end
 

@@ -22,21 +22,25 @@ module tt_um_r0
 
     logic btn;
 
-    logic [15:0] rnd;
     logic [18:0] result [2];
     logic lit, miss;
 
-    logic [4:0]  char;
+    logic [5:0]  char;
     logic [1:0]  color;
     logic [24:0] bcd;
     logic [2:0]  display_state;
-    logic bcd_mux;
+    logic [5:0]  shrnd;
+    logic bcd_mux, rgb_mux;
 
     logic [9:0] x, y;
-    logic hs, vs, of;
+    logic hs, vs;
 
     logic [1:0] o_r, o_g, o_b;
     logic o_hs, o_vs;
+
+    logic [0:0] _unused;
+
+    assign _unused = bcd[24];
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -67,19 +71,17 @@ module tt_um_r0
     , .vs(o_vs)
     );
 
-    prng u_rng (clk, rst, rnd);
-
     core_fsm u_fsm
     ( .i_clk(clk)
     , .i_rst(rst)
     , .i_btn(btn)
     , .i_fbk(1'b1)
-    , .i_rnd(rnd)
 
     , .o_lit(lit)
     , .o_miss(miss)
     , .o_dst(display_state)
     , .o_measured(result[0])
+    , .o_shrnd(shrnd)
     );
 
     bcd_project u_bcd
@@ -99,6 +101,7 @@ module tt_um_r0
     , .o_bcdmux(bcd_mux)
     , .o_char(char)
     , .o_color(color)
+    , .o_rgbmux(rgb_mux)
     );
 
     graphics u_graphics
@@ -106,6 +109,8 @@ module tt_um_r0
     , .i_color(color)
     , .i_x(x)
     , .i_y(y)
+    , .i_rgb(shrnd)
+    , .i_sel(rgb_mux)
 
     , .o_video({o_r, o_g, o_b})
     );
@@ -118,7 +123,6 @@ module tt_um_r0
     , .y(y)
     , .hs(hs)
     , .vs(vs)
-    , .of(of)
 
     `ifdef VGA_DE
     , .de(vga_de)

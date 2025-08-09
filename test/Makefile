@@ -7,12 +7,14 @@ TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = project.sv
 
+EXTRA_ARGS += --timing
+EXTRA_ARGS += --trace
+
 ifneq ($(GATES),yes)
 
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl
 VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
-EXTRA_ARGS += --timing
 
 else
 
@@ -28,6 +30,9 @@ VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_f
 
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+# Suppress some warnings
+EXTRA_ARGS += -Wno-UNOPTFLAT
+EXTRA_ARGS += -Wno-PINMISSING
 
 endif
 

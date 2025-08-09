@@ -24,7 +24,6 @@ project:
     - "core_fsm.sv"
     - "graphics.sv"
     - "layout.sv"
-    - "prng.sv"
     - "vga_timings.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
