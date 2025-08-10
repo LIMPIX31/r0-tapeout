@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-module tt_um_r0
+module tt_um_limpix31_r0
 ( input  logic [7:0] ui_in    // Dedicated inputs
 , output logic [7:0] uo_out   // Dedicated outputs
 , input  logic [7:0] uio_in   // IOs: Input path
@@ -11,7 +11,7 @@ module tt_um_r0
 , output logic [7:0] uio_oe   // IOs: Enable path (active high: 0=input, 1=output)
 , input  logic       ena      // always 1 when the design is powered, so you can ignore it
 , input  logic       clk      // clock
-, input  logic       rst_n     // reset_n - low to reset
+, input  logic       rst_n    // reset_n - low to reset
 
 `ifdef VGA_DE
 , output logic vga_de
@@ -20,33 +20,25 @@ module tt_um_r0
 
     logic rst;
 
-    logic btn;
+    logic btn_n;
 
-    logic [23:0] result [2];
+    logic [23:0] last_result;
+    logic [23:0] best_result;
+
     logic lit, miss;
 
-    logic [5:0]  char;
-    logic [1:0]  color;
-    logic [23:0] bcd;
-    logic [2:0]  display_state;
-    logic [5:0]  shrnd;
-    logic bcd_mux, rgb_mux;
+    logic [4:0] char;
+    logic [1:0] color;
+    logic [2:0] display_state;
+    logic [5:0] shrnd;
+
+    logic bcd_mux;
+    logic rgb_mux;
 
     logic [10:0] x, y;
     logic hs, vs;
 
-    logic [1:0] o_r, o_g, o_b;
-    logic o_hs, o_vs;
-
-    always_ff @(posedge clk) begin
-        if (rst) begin
-            result[1] <= {6{4'b1111}};
-        end else if (result[0] < result[1]) begin
-            result[1] <= result[0];
-        end else begin
-            result[1] <= result[1];
-        end
-    end
+    logic [1:0] r, g, b;
 
     io_map u_io
     ( .ena(ena)
@@ -58,34 +50,35 @@ module tt_um_r0
     , .uio_out(uio_out)
     , .uio_oe(uio_oe)
 
-    , .btn(btn)
+    , .btn_n(btn_n)
     , .rst(rst)
-    , .r(o_r)
-    , .g(o_g)
-    , .b(o_b)
-    , .hs(o_hs)
-    , .vs(o_vs)
+    , .r(r)
+    , .g(g)
+    , .b(b)
+    , .hs(hs)
+    , .vs(vs)
     );
 
     core_fsm u_fsm
     ( .i_clk(clk)
     , .i_rst(rst)
-    , .i_btn(btn)
+    , .i_btn_n(btn_n)
 
     , .o_lit(lit)
     , .o_miss(miss)
     , .o_dst(display_state)
-    , .o_measured(result[0])
+    , .o_last(last_result)
+    , .o_best(best_result)
     , .o_shrnd(shrnd)
     );
 
     layout u_layout
     ( .i_x(x)
     , .i_y(y)
-    , .i_bcd(bcd_mux ? result[1] : result[0])
+    , .i_bcd(bcd_mux ? best_result : last_result)
     , .i_lit(lit)
     , .i_miss(miss)
-    , .i_init(&result[1])
+    , .i_init(&best_result)
     , .i_dst(display_state)
 
     , .o_bcdmux(bcd_mux)
@@ -102,7 +95,7 @@ module tt_um_r0
     , .i_rgb(shrnd)
     , .i_sel(rgb_mux)
 
-    , .o_video({o_r, o_g, o_b})
+    , .o_video({r, g, b})
     );
 
     vga_timings u_timings
@@ -118,10 +111,5 @@ module tt_um_r0
     , .de(vga_de)
     `endif
     );
-
-    always_comb begin
-        o_hs = hs;
-        o_vs = vs;
-    end
 
 endmodule

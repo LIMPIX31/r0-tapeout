@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 Danil Karpenko
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 module vga_timings #
 ( parameter bit [10:0] H_TOTAL = 1056
 , parameter bit [10:0] H_ACTIVE = 800

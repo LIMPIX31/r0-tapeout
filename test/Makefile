@@ -5,7 +5,7 @@
 SIM ?= verilator
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.sv
+PROJECT_SOURCES = project.sv bcd_counter.sv bitmap_rom.sv core_fsm.sv graphics.sv io_map.sv layout.sv vga_timings.sv
 
 EXTRA_ARGS += --timing
 EXTRA_ARGS += --trace

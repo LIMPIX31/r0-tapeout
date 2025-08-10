@@ -15,16 +15,18 @@ ASIC.
 **r0** lets you measure human reaction time really accurately interfacing only VGA compatible monitor and a single
 button. The precision is 1 microsecond.
 
-## How to test
-
-* Connect your monitor to Tiny VGA and the button to `ui[0]`.
-* Press the button once to get ready.
-* and as soon as you see green on the monitor, press the button as quickly as possible.
-* Try press earlier, the screen will turn red, which means that your reaction was false.
-
 The state is not synchronized with vsync, so the monitor may display only a few green lines before you react, which
 gives you flexibility in your response. It also forces you to watch the entire monitor, not just the upper left corner,
 waiting for the first green pixel.
+
+## How to test
+
+1. Connect your monitor to Tiny VGA and the button (with pull-up resistor) to `ui[0]`.
+2. Make sure that the lower LFSR debug line looks like noise in the idle state.
+3. Press the button once to get ready.
+4. and as soon as you see green on the monitor, press the button as quickly as possible.
+5. Check the results of your reaction speed 
+6. Try press earlier, the screen will turn red, which means that your reaction was false.
 
 ## External hardware
 

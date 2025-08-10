@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2025 Danil Karpenko
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 module graphics
-( input  logic [5:0]  i_char
+( input  logic [4:0]  i_char
 , input  logic [1:0]  i_color
 , input  logic [10:0] i_x, i_y
 , input  logic [5:0]  i_rgb
@@ -50,7 +55,7 @@ module graphics
         endcase
     end
 
-    bitmap_rom u_bitmap
+    bitmap_rom #(5) u_bitmap
     (i_char, cy, cx, dot);
 
 endmodule : graphics

@@ -23,7 +23,7 @@ module top
 
     assign video = {{4{rm, rl}}, {4{gm, gl}}, {4{bm, bl}}};
 
-    tt_um_r0 u_dut
+    tt_um_limpix31_r0 u_dut
     ( .clk(hdmi_pclk)
     , .ui_in({7'd0, i_btn_n})
     , .uo_out({hs, bl, gl, rl, vs, bm, gm, rm})

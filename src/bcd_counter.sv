@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 Danil Karpenko
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 module bcd_counter #
 ( parameter int unsigned DIGITS = 6
 )
@@ -9,14 +14,16 @@ module bcd_counter #
 );
 
     logic [DIGITS:0] carry;
-    logic _overflow;
+    logic _unused;
 
     assign carry[0] = count;
-    assign _overflow = carry[DIGITS];
+
+    // Overflow
+    assign _unused = carry[DIGITS];
 
     generate
-        for (genvar i = 0; i < DIGITS; i++) begin
-            bcd_unit u_bcd
+        for (genvar i = 0; i < DIGITS; i++) begin : gen_bcd_units
+            bcd_unit u_bcd_unit
             ( .clk(clk)
             , .rst(rst)
             , .count(carry[i])
@@ -42,12 +49,10 @@ module bcd_unit
     always_ff @(posedge clk) begin
         if (rst) begin
             digit <= 0;
+        end else if (carry) begin
+            digit <= 0;
         end else if (count) begin
-            if (digit == 4'd9) begin
-                digit <= 0;
-            end else begin
-                digit <= digit + 4'd1;
-            end
+            digit <= digit + 4'd1;
         end else begin
             digit <= digit;
         end

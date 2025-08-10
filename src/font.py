@@ -1,13 +1,13 @@
 import re
 from pathlib import Path
 
-ADDR_WIDTH = 6
-SPACE_CODE = "111111"
-USE = ["Press button to start", "Ready", "Hit", "Miss", "Last:", "Best:", ".", "ms", "\xbb", "\xf6"]
+ADDR_WIDTH = 5
+SPACE_CODE = "11111"
+USE = ["Press to start", "Ready", "Hit", "Miss", "Last:", "Best:", ".", "ms", "\xbb", "\xf6"]
 INDENT = ' ' * 8
 
 font = {}
-with open("./src/FONT.F08", 'rb') as f:
+with open("./assets/FONT.F08", 'rb') as f:
     data = f.read()
 
 total_bytes = len(data)
