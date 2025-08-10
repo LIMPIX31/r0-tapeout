@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "r0"      # Project title
+  title:        "VGA Human Reaction Meter"      # Project title
   author:       "Danil Karpenko"      # Your name
   discord:      "limpix31"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "Ultra-precise human reaction meter"      # One line description of what your project does
@@ -30,7 +30,7 @@ project:
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "btn"
+  ui[0]: "btn_n"
   ui[1]: ""
   ui[2]: ""
   ui[3]: ""

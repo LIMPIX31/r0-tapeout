@@ -155,6 +155,6 @@ module layout
     end
 
     assign o_color  = {i_miss, i_lit};
-    assign o_rgbmux = x_active && y_active && offset_y == 9;
+    assign o_rgbmux = block_x == 20 && block_y == 29;
 
 endmodule : layout

@@ -33,8 +33,8 @@ module vga_timings #
         assign de = x < H_ACTIVE && y < V_ACTIVE;
     `endif
 
-    assign hs = x > H_SYNC_START && x <= H_SYNC_END;
-    assign vs = y > V_SYNC_START && y <= V_SYNC_END;
+    assign hs = x >= H_SYNC_START && x < H_SYNC_END;
+    assign vs = y >= V_SYNC_START && y < V_SYNC_END;
 
     always_ff @(posedge clk) begin
         if (rst) begin

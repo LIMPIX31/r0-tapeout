@@ -5,7 +5,7 @@ from PIL import Image
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles, RisingEdge, FallingEdge
+from cocotb.triggers import ClockCycles, RisingEdge
 
 
 @cocotb.test()
@@ -23,7 +23,7 @@ async def test_project(dut):
     dut.rst_n.value = 0
     await ClockCycles(dut.clk, 2)
     dut.rst_n.value = 1
-    await ClockCycles(dut.clk, 2)
+    await RisingEdge(dut.clk)
 
     # Frame 0
     await dump_frame(dut, "frames/f0.png")
@@ -31,9 +31,6 @@ async def test_project(dut):
     # Frame 1
     await dump_frame(dut, "frames/f1.png")
     dut._log.info("Frame 1")
-    # Frame 2
-    await dump_frame(dut, "frames/f2.png")
-    dut._log.info("Frame 2")
 
 async def dump_frame(dut, filename):
     receiver = VgaReceiver(dut)
@@ -59,20 +56,20 @@ async def dump_frame(dut, filename):
             assert not v.hs() and not v.vs()
             await RisingEdge(dut.clk)
 
-    for n in range(28 * 1056):
+    for n in range(1 * 1056):
         v = receiver.decode()
-        # assert not v.vs()
+        assert not v.vs()
         await RisingEdge(dut.clk)
-    #
-    # for n in range(4 * 1056):
-    #     v = receiver.decode()
-    #     assert v.vs()
-    #     await RisingEdge(dut.clk)
-    #
-    # for n in range(23 * 1056):
-    #     v = receiver.decode()
-    #     assert not v.vs()
-    #     await RisingEdge(dut.clk)
+
+    for n in range(4 * 1056):
+        v = receiver.decode()
+        assert v.vs()
+        await RisingEdge(dut.clk)
+
+    for n in range(23 * 1056):
+        v = receiver.decode()
+        assert not v.vs()
+        await RisingEdge(dut.clk)
 
     image.save(filename)
 
