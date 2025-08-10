@@ -2,13 +2,10 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= verilator
+SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = project.sv bcd_counter.sv bitmap_rom.sv core_fsm.sv graphics.sv io_map.sv layout.sv vga_timings.sv
-
-EXTRA_ARGS += --timing
-EXTRA_ARGS += --trace
 
 ifneq ($(GATES),yes)
 
@@ -28,11 +25,8 @@ COMPILE_ARGS    += -DUNIT_DELAY=\#1
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
 
-# this gets copied in by the GDS action workflow
+# this gets copied in by the GDS action workflow/
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
-# Suppress some warnings
-EXTRA_ARGS += -Wno-UNOPTFLAT
-EXTRA_ARGS += -Wno-PINMISSING
 
 endif
 

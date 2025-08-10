@@ -21,7 +21,7 @@ module bitmap_rom #
 
     assign addr = {char, row};
     assign data = rom[addr];
-    assign dot  = data[col];
+    assign dot  = &char ? 0 : data[col];
 
     initial begin
         (* font_start *);
@@ -318,6 +318,15 @@ module bitmap_rom #
         rom[8'b11101_000] = 8'b10001000;
 
         (* font_end *);
+
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b111}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b110}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b101}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b100}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b011}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b010}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b001}] = 8'd0;
+        // rom[{{ADDR_WIDTH{1'b1}}, 3'b000}] = 8'd0;
     end
 
 endmodule : bitmap_rom
