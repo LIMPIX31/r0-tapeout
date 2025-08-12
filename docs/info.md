@@ -17,6 +17,8 @@ button. The precision is ±1 microsecond.
 The state is not synchronized with vsync, so the monitor may start displaying green from an arbitrary line. This forces
 you to watch the entire monitor instead of just the upper-left corner waiting for the first green pixel.
 
+![image](../assets/screenshot.png)
+
 ## How to test
 
 1. Connect your monitor with Tiny VGA and the button (with pull-up resistor) to `ui[0]`.

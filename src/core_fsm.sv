@@ -16,6 +16,20 @@ module core_fsm
 , output logic [5:0]  o_shrnd
 );
 
+	// The demo runs slower, so I speed up the timers
+	`ifdef DEMO
+		localparam int unsigned TIMER_SETUP   = 18;
+		localparam int unsigned TIMER_GUARD   = 22;
+		localparam int unsigned TIMER_TIMEOUT = 22;
+		localparam int unsigned RND_DIV       = 3;
+	`else
+		localparam int unsigned TIMER_SETUP   = 22;
+		localparam int unsigned TIMER_GUARD   = 26;
+		localparam int unsigned TIMER_TIMEOUT = 25;
+		// (!) RND_DIV must be 0 if not running demo
+		localparam int unsigned RND_DIV       = 0;
+	`endif
+
     logic [5:0]  sub;
     logic [26:0] cnt;
     logic [15:0] rnd;
@@ -39,7 +53,7 @@ module core_fsm
 
     assign o_lit   = state == MEASURE;
     assign o_miss  = state == EARLY;
-    assign clicked = ~btn & ~btn_d1;
+    assign clicked = btn & ~btn_d1;
     assign o_shrnd = rnd[5:0];
 
     assign bcd_rst = state != MEASURE;
@@ -68,7 +82,7 @@ module core_fsm
             // Reset button sync
             btn_d0 <= 0;
             btn_d1 <= 0;
-            btn    <= 1;
+            btn    <= 0;
 
             // Reset results
             o_last <= {6{4'b1111}};
@@ -76,21 +90,19 @@ module core_fsm
         end else begin
             btn_d0 <= i_btn_n;
             btn_d1 <= btn_d0;
-            btn    <= ~btn_d1;
+            btn    <= btn_d1;
 
             unique case (state)
-                // Run LSFR during IDLE
-                // Keep cnt == 0
                 IDLE: begin
                     if (clicked) begin
                         state <= SETUP;
                     end
 
+                    // Run LSFR during IDLE
                     rnd <= {rnd[14:0], rnd[15] ^ rnd[13] ^ rnd[12] ^ rnd[10]};
-                    cnt <= 0;
                 end
                 // Debounce button
-                SETUP: if (cnt[22]) begin
+                SETUP: if (cnt[TIMER_SETUP]) begin
                     state <= GUARD;
                     cnt <= 0;
                 end else begin
@@ -100,8 +112,9 @@ module core_fsm
                 GUARD: if (clicked) begin
                     state <= EARLY;
                     cnt <= 0;
-                end else if (cnt[26]) begin
+                end else if (cnt[TIMER_GUARD]) begin
                     state <= WAIT;
+                    cnt <= 0;
                 end else begin
                     cnt <= cnt + 27'd1;
                 end
@@ -109,7 +122,7 @@ module core_fsm
                 WAIT: if (clicked) begin
                     state <= EARLY;
                     cnt <= 0;
-                end else if (cnt >= {rnd, 11'd0}) begin
+                end else if (cnt == {rnd, 11'd0} >> RND_DIV) begin
                     state <= MEASURE;
                     sub <= 0;
                     cnt <= 0;
@@ -129,8 +142,9 @@ module core_fsm
                         o_best <= bcd;
                     end
                 // Check for timeout
-                end else if (cnt[25]) begin
+                end else if (cnt[TIMER_TIMEOUT]) begin
                     state <= IDLE;
+                    cnt <= 0;
                 // Every time the sub counter reaches 39, 1us passes
                 end else if (sub == 6'd39) begin
                     sub <= 0;
@@ -141,8 +155,9 @@ module core_fsm
                 end
                 // Ignore any input data for some time after
                 // a successful measurement or miss
-                EARLY, FINISH: if (cnt[25]) begin
+                EARLY, FINISH: if (cnt[TIMER_TIMEOUT]) begin
                     state <= IDLE;
+                    cnt <= 0;
                 end else begin
                     cnt <= cnt + 27'd1;
                 end

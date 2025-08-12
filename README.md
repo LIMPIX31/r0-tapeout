@@ -6,7 +6,7 @@ Ultra-precise human reaction meter
 
 - [Read the documentation for project](docs/info.md)
 
-![image](./assets/r0.jpg)
+![image](assets/screenshot.png)
 
 ## Why this project is so cool for learning
 
@@ -16,6 +16,18 @@ Ultra-precise human reaction meter
   it is more important to keep the area of the design small.
 * **Fun and Curiosity**: It is interesting to measure the speed of your own reaction and be sure that the input is not
   delayed by the CPU and the timer does not fail.
+
+## Run Demo
+Make sure [verilator](https://verilator.org/guide/latest/) and [SDL3](https://wiki.libsdl.org/SDL3/FrontPage) are installed.
+The button is mapped to the space bar.
+> [!WARNING]
+> Demo speeds up timers to compensate low frame rate
+```bash
+cd demo
+cmake -B build
+cmake --build build -j
+./build/tt_r0
+```
 
 ## What is Tiny Tapeout?
 
