@@ -98,7 +98,7 @@ module core_fsm
                         state <= SETUP;
                     end
 
-                    // Run LSFR during IDLE
+                    // Run LFSR during IDLE
                     rnd <= {rnd[14:0], rnd[15] ^ rnd[13] ^ rnd[12] ^ rnd[10]};
                 end
                 // Debounce button

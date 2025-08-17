@@ -48,14 +48,14 @@ module layout
     always_comb begin
         if (i_init) begin
             for (int i = 0; i < 8; i++) begin
-                bcd_text[i] = 5'b11101; // Dash
+                bcd_text[i] = 5'b11101;
             end
         end else begin
-            bcd_text[0] = 5'b01010; // Dot
+            bcd_text[0] = 5'b01010;
             bcd_text[1] = {1'd0, i_bcd[23:20]};
             bcd_text[2] = {1'd0, i_bcd[19:16]};
             bcd_text[3] = {1'd0, i_bcd[15:12]};
-            bcd_text[4] = 5'b01010; // Dot
+            bcd_text[4] = 5'b01010;
             bcd_text[5] = {1'd0, i_bcd[11:8]};
             bcd_text[6] = {1'd0, i_bcd[7:4]};
             bcd_text[7] = {1'd0, i_bcd[3:0]};
@@ -65,7 +65,7 @@ module layout
     always_comb begin
         if (y_active && x_active) begin
             case (offset_y)
-                0: // Line 0: Status line
+                0: // Line 0
                     case (i_dst)
                         3'b000: // "Press button to start"
                             case (offset_x)
